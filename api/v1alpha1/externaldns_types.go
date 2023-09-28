@@ -466,15 +466,23 @@ type ExternalDNSSourceUnion struct {
 	// +kubebuilder:validation:Optional
 	// +optional
 	OpenShiftRoute *ExternalDNSOpenShiftRouteOptions `json:"openshiftRouteOptions,omitempty"`
+
+	// Ingress descibes source configuration options specific to the
+	// Ingress.networking.k8s.io resource.
+	//
+	// +kubebuilder:validation:Optional
+	// +optional
+	Ingress *ExternalDNSIngressSourceOptions `json:"ingress,omitempty"`
 }
 
-// +kubebuilder:validation:Enum=OpenShiftRoute;Service;CRD
+// +kubebuilder:validation:Enum=OpenShiftRoute;Service;CRD;Ingress
 type ExternalDNSSourceType string
 
 const (
 	SourceTypeRoute   ExternalDNSSourceType = "OpenShiftRoute"
 	SourceTypeService ExternalDNSSourceType = "Service"
 	SourceTypeCRD     ExternalDNSSourceType = "CRD"
+	SourceTypeIngress ExternalDNSSourceType = "Ingress"
 )
 
 // +kubebuilder:validation:Enum=Ignore;Allow
@@ -565,6 +573,32 @@ type ExternalDNSCRDSourceOptions struct {
 	// +kubebuilder:validation:Optional
 	// +optional
 	LabelFilter *metav1.LabelSelector `json:"labelFilter,omitempty"`
+}
+
+// ExternalDNSIngressSourceOptions describes options for configuring
+// the ExternalDNS Ingress source. The ExternalDNS Ingress Source
+type ExternalDNSIngressSourceOptions struct {
+	// Class specifies an ingress class filter,
+	// the flag for this option is `--ingress-class`
+	//
+	// +kubebuilder:validation:Optional
+	// +optional
+	Class []string `json:"class"`
+
+	//
+	// +kubebuilder:validation:Optional
+	// +optional
+	IgnoreRulesSpec bool `json:"ignoreRuleSpec"`
+
+	//
+	// +kubebuilder:validation:Optional
+	// +optional
+	IgnoreTlsSpec bool `json:"ignoreTlsSpec"`
+
+	//
+	// +kubebuilder:validation:Optional
+	// +optional
+	IgnoreHostnameAnnotation bool `json:"ignoreHostnameAnnotation"`
 }
 
 // ExternalDNSStatus defines the observed state of ExternalDNS.
