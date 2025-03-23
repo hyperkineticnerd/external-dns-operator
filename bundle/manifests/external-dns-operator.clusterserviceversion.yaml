@@ -139,7 +139,7 @@ metadata:
                 },
                 "gridHost": "100.100.100.100",
                 "wapiPort": 443,
-                "wapiVersion": "2.3.1"
+                "wapiVersion": "2.12.2"
               },
               "type": "Infoblox"
             },
@@ -204,6 +204,34 @@ metadata:
             },
             "zones": [
               "/subscriptions/53b4f551-f0fc-4bea-8cba-11111111111/resourceGroups/test-azure1-nxkxm-rg/providers/Microsoft.Network/dnszones/test-azure1.qe.azure.devcluster.openshift.com"
+            ]
+          }
+        },
+        {
+          "apiVersion": "externaldns.olm.openshift.io/v1beta1",
+          "kind": "ExternalDNS",
+          "metadata": {
+            "name": "sample-azure-private"
+          },
+          "spec": {
+            "domains": [
+              {
+                "filterType": "Include",
+                "matchType": "Exact",
+                "name": "test-azure1.qe.azure.devcluster.openshift.com"
+              }
+            ],
+            "provider": {
+              "type": "Azure"
+            },
+            "source": {
+              "openshiftRouteOptions": {
+                "routerName": "default"
+              },
+              "type": "OpenShiftRoute"
+            },
+            "zones": [
+              "/subscriptions/53b4f551-f0fc-4bea-8cba-11111111111/resourceGroups/test-azure1-nxkxm-rg/providers/Microsoft.Network/privateDnsZones/test-azure1.qe.azure.devcluster.openshift.com"
             ]
           }
         },
@@ -286,7 +314,7 @@ metadata:
                 },
                 "gridHost": "100.100.100.100",
                 "wapiPort": 443,
-                "wapiVersion": "2.3.1"
+                "wapiVersion": "2.12.2"
               },
               "type": "Infoblox"
             },
@@ -303,14 +331,22 @@ metadata:
     certified: "false"
     containerImage: quay.io/openshift/origin-external-dns-operator:latest
     createdAt: 2021/09/28
-    olm.skipRange: <1.1.0
+    features.operators.openshift.io/disconnected: "true"
+    features.operators.openshift.io/fips-compliant: "false"
+    features.operators.openshift.io/proxy-aware: "true"
+    features.operators.openshift.io/tls-profiles: "false"
+    features.operators.openshift.io/token-auth-aws: "false"
+    features.operators.openshift.io/token-auth-azure: "false"
+    features.operators.openshift.io/token-auth-gcp: "false"
+    olm.skipRange: <1.3.0
     operatorframework.io/suggested-namespace: external-dns-operator
-    operators.openshift.io/infrastructure-features: '["disconnected","proxy-aware"]'
+    operators.openshift.io/valid-subscription: '["OpenShift Kubernetes Engine", "OpenShift
+      Container Platform", "OpenShift Platform Plus"]'
     operators.operatorframework.io/builder: operator-sdk-v1.16.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/openshift/external-dns-operator
     support: Red Hat, Inc.
-  name: external-dns-operator.v1.1.0
+  name: external-dns-operator.v1.3.0
   namespace: external-dns-operator
 spec:
   apiservicedefinitions: {}
@@ -436,13 +472,14 @@ spec:
                 - --externaldns-image=$(RELATED_IMAGE_EXTERNAL_DNS)
                 - --trusted-ca-configmap=$(TRUSTED_CA_CONFIGMAP_NAME)
                 - --leader-elect
+                - --webhook-disable-http2
                 env:
                 - name: OPERATOR_NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: RELATED_IMAGE_EXTERNAL_DNS
-                  value: quay.io/external-dns-operator/external-dns@sha256:a742a727d3a18ffb78c7d0a24fd2c5eebed01479163959169203427514d7aa89
+                  value: quay.io/external-dns-operator/external-dns@sha256:42c9f6d6b01d5e45b7d5064d2d6dea1f7b51346198d80e7f7f9821bd7fd072cf
                 - name: TRUSTED_CA_CONFIGMAP_NAME
                 image: quay.io/openshift/origin-external-dns-operator:latest
                 name: external-dns-operator
@@ -472,6 +509,7 @@ spec:
                   runAsNonRoot: true
                   seccompProfile:
                     type: RuntimeDefault
+                terminationMessagePolicy: FallbackToLogsOnError
               - args:
                 - --secure-listen-address=0.0.0.0:8443
                 - --upstream=http://127.0.0.1:8080/
@@ -479,6 +517,7 @@ spec:
                 - --v=10
                 - --tls-cert-file=/var/run/secrets/serving-cert/tls.crt
                 - --tls-private-key-file=/var/run/secrets/serving-cert/tls.key
+                - --http2-disable
                 image: quay.io/openshift/origin-kube-rbac-proxy:latest
                 name: kube-rbac-proxy
                 ports:
@@ -497,6 +536,7 @@ spec:
                   runAsNonRoot: true
                   seccompProfile:
                     type: RuntimeDefault
+                terminationMessagePolicy: FallbackToLogsOnError
                 volumeMounts:
                 - mountPath: /var/run/secrets/serving-cert
                   name: metrics-cert
@@ -587,7 +627,7 @@ spec:
   minKubeVersion: 1.22.0
   provider:
     name: Red Hat, Inc.
-  version: 1.1.0
+  version: 1.3.0
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

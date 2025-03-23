@@ -25,7 +25,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 
 	configv1 "github.com/openshift/api/config/v1"
 
@@ -59,13 +59,18 @@ const (
 	//
 	// AWS
 	//
-	awsCredentialEnvVarName  = "AWS_SHARED_CREDENTIALS_FILE"
-	awsRegionEnvVarName      = "AWS_REGION"
-	awsCredentialsVolumeName = "aws-credentials"
-	awsCredentialsMountPath  = defaultConfigMountPath
-	awsCredentialsFileKey    = "credentials"
-	awsCredentialsFileName   = "aws-credentials"
-	awsCredentialsFilePath   = awsCredentialsMountPath + "/" + awsCredentialsFileName
+	awsCredentialEnvVarName       = "AWS_SHARED_CREDENTIALS_FILE"
+	awsRegionEnvVarName           = "AWS_REGION"
+	awsCredentialsVolumeName      = "aws-credentials"
+	awsCredentialsMountPath       = defaultConfigMountPath
+	awsCredentialsFileKey         = "credentials"
+	awsCredentialsFileName        = "aws-credentials"
+	awsCredentialsFilePath        = awsCredentialsMountPath + "/" + awsCredentialsFileName
+	boundSATokenVolumeName        = "bound-sa-token"
+	boundSATokenAudience          = "openshift"
+	boundSATokenExpirationSeconds = 3600
+	boundSATokenPath              = "token"
+	boundSATokenMountPath         = "/var/run/secrets/openshift/serviceaccount"
 	//
 	// Azure
 	//
@@ -147,9 +152,9 @@ func (b *externalDNSContainerBuilder) defaultContainer(name string) *corev1.Cont
 			Capabilities: &corev1.Capabilities{
 				Drop: []corev1.Capability{allCapabilities},
 			},
-			Privileged:               pointer.Bool(false),
-			RunAsNonRoot:             pointer.Bool(true),
-			AllowPrivilegeEscalation: pointer.Bool(false),
+			Privileged:               ptr.To[bool](false),
+			RunAsNonRoot:             ptr.To[bool](true),
+			AllowPrivilegeEscalation: ptr.To[bool](false),
 			SeccompProfile: &corev1.SeccompProfile{
 				Type: corev1.SeccompProfileTypeRuntimeDefault,
 			},
@@ -359,14 +364,20 @@ func (b *externalDNSContainerBuilder) fillAWSFields(container *corev1.Container)
 	}
 
 	for _, v := range b.volumes {
-		if v.Name == awsCredentialsVolumeName {
+		switch v.Name {
+		case awsCredentialsVolumeName:
 			container.Env = append(container.Env, corev1.EnvVar{Name: awsCredentialEnvVarName, Value: awsCredentialsFilePath})
 			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
-				Name:      v.Name,
+				Name:      awsCredentialsVolumeName,
 				MountPath: awsCredentialsMountPath,
 				ReadOnly:  true,
-			},
-			)
+			})
+		case boundSATokenVolumeName:
+			container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+				Name:      boundSATokenVolumeName,
+				MountPath: boundSATokenMountPath,
+				ReadOnly:  true,
+			})
 		}
 	}
 }
@@ -618,6 +629,20 @@ func (b *externalDNSVolumeBuilder) awsVolumes() []corev1.Volume {
 							Path: awsCredentialsFileName,
 						},
 					},
+				},
+			},
+		},
+		{
+			Name: boundSATokenVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				Projected: &corev1.ProjectedVolumeSource{
+					Sources: []corev1.VolumeProjection{{
+						ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+							Audience:          boundSATokenAudience,
+							ExpirationSeconds: ptr.To[int64](boundSATokenExpirationSeconds),
+							Path:              boundSATokenPath,
+						},
+					}},
 				},
 			},
 		},

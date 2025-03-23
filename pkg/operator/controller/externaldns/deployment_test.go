@@ -32,7 +32,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
@@ -116,8 +116,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -136,6 +135,22 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 											{
 												Key:  awsCredentialsFileKey,
 												Path: awsCredentialsFileName,
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "bound-sa-token",
+								VolumeSource: corev1.VolumeSource{
+									Projected: &corev1.ProjectedVolumeSource{
+										Sources: []corev1.VolumeProjection{
+											{
+												ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+													Audience:          "openshift",
+													ExpirationSeconds: ptr.To[int64](3600),
+													Path:              "token",
+												},
 											},
 										},
 									},
@@ -176,14 +191,19 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 										MountPath: awsCredentialsMountPath,
 										ReadOnly:  true,
 									},
+									{
+										Name:      "bound-sa-token",
+										MountPath: "/var/run/secrets/openshift/serviceaccount",
+										ReadOnly:  true,
+									},
 								},
 								SecurityContext: &corev1.SecurityContext{
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -221,8 +241,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -257,9 +276,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -298,8 +317,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -365,9 +383,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -407,8 +425,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -427,6 +444,22 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 											{
 												Key:  awsCredentialsFileKey,
 												Path: awsCredentialsFileName,
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "bound-sa-token",
+								VolumeSource: corev1.VolumeSource{
+									Projected: &corev1.ProjectedVolumeSource{
+										Sources: []corev1.VolumeProjection{
+											{
+												ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+													Audience:          "openshift",
+													ExpirationSeconds: ptr.To[int64](3600),
+													Path:              "token",
+												},
 											},
 										},
 									},
@@ -472,14 +505,19 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 										MountPath: awsCredentialsMountPath,
 										ReadOnly:  true,
 									},
+									{
+										Name:      "bound-sa-token",
+										MountPath: "/var/run/secrets/openshift/serviceaccount",
+										ReadOnly:  true,
+									},
 								},
 								SecurityContext: &corev1.SecurityContext{
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -518,8 +556,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -579,9 +616,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -620,8 +657,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -681,9 +717,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -721,8 +757,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -758,9 +793,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -799,8 +834,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -859,9 +893,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -900,9 +934,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -941,8 +975,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1007,9 +1040,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1047,8 +1080,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1083,9 +1115,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1125,8 +1157,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1162,9 +1193,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1203,8 +1234,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1263,9 +1293,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1303,8 +1333,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1339,9 +1368,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1380,8 +1409,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1412,7 +1440,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									"--fqdn-template={{.Name}}.test.com",
 									"--infoblox-wapi-port=443",
 									"--infoblox-grid-host=gridhost.example.com",
-									"--infoblox-wapi-version=2.3.1",
+									"--infoblox-wapi-version=2.12.2",
 									"--txt-prefix=external-dns-",
 								},
 								Env: []corev1.EnvVar{
@@ -1443,9 +1471,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1483,8 +1511,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1518,9 +1545,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1558,8 +1585,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1588,9 +1614,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1628,8 +1654,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1660,9 +1685,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1700,8 +1725,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1736,9 +1760,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1769,9 +1793,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1809,8 +1833,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1846,9 +1869,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1886,8 +1909,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1921,9 +1943,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -1961,8 +1983,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -1997,9 +2018,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2037,8 +2058,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2074,9 +2094,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2116,8 +2136,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2136,6 +2155,22 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 											{
 												Key:  awsCredentialsFileKey,
 												Path: awsCredentialsFileName,
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "bound-sa-token",
+								VolumeSource: corev1.VolumeSource{
+									Projected: &corev1.ProjectedVolumeSource{
+										Sources: []corev1.VolumeProjection{
+											{
+												ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+													Audience:          "openshift",
+													ExpirationSeconds: ptr.To[int64](3600),
+													Path:              "token",
+												},
 											},
 										},
 									},
@@ -2171,14 +2206,19 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 										MountPath: awsCredentialsMountPath,
 										ReadOnly:  true,
 									},
+									{
+										Name:      "bound-sa-token",
+										MountPath: "/var/run/secrets/openshift/serviceaccount",
+										ReadOnly:  true,
+									},
 								},
 								SecurityContext: &corev1.SecurityContext{
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2216,8 +2256,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2247,9 +2286,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2288,8 +2327,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2308,6 +2346,22 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 											{
 												Key:  awsCredentialsFileKey,
 												Path: awsCredentialsFileName,
+											},
+										},
+									},
+								},
+							},
+							{
+								Name: "bound-sa-token",
+								VolumeSource: corev1.VolumeSource{
+									Projected: &corev1.ProjectedVolumeSource{
+										Sources: []corev1.VolumeProjection{
+											{
+												ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+													Audience:          "openshift",
+													ExpirationSeconds: ptr.To[int64](3600),
+													Path:              "token",
+												},
 											},
 										},
 									},
@@ -2343,14 +2397,19 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 										MountPath: awsCredentialsMountPath,
 										ReadOnly:  true,
 									},
+									{
+										Name:      "bound-sa-token",
+										MountPath: "/var/run/secrets/openshift/serviceaccount",
+										ReadOnly:  true,
+									},
 								},
 								SecurityContext: &corev1.SecurityContext{
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2388,8 +2447,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2420,9 +2478,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2461,8 +2519,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2517,9 +2574,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2557,8 +2614,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2589,9 +2645,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2630,8 +2686,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2685,9 +2740,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2721,9 +2776,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2762,8 +2817,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2823,9 +2877,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2863,8 +2917,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2894,9 +2947,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -2935,8 +2988,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -2990,9 +3042,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3030,8 +3082,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3061,9 +3112,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3102,8 +3153,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3129,7 +3179,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									`--fqdn-template={{""}}`,
 									"--infoblox-wapi-port=443",
 									"--infoblox-grid-host=gridhost.example.com",
-									"--infoblox-wapi-version=2.3.1",
+									"--infoblox-wapi-version=2.12.2",
 									"--txt-prefix=external-dns-",
 								},
 								Env: []corev1.EnvVar{
@@ -3160,9 +3210,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3200,8 +3250,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3230,9 +3279,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3270,8 +3319,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3299,9 +3347,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3339,8 +3387,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3370,9 +3417,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3398,9 +3445,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3438,8 +3485,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3470,9 +3516,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3510,8 +3556,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3540,9 +3585,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3580,8 +3625,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3611,9 +3655,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3651,8 +3695,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3683,9 +3726,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3728,8 +3771,7 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 					Spec: corev1.PodSpec{
 						ServiceAccountName: test.OperandName,
 						NodeSelector: map[string]string{
-							osLabel:             linuxOS,
-							masterNodeRoleLabel: "",
+							osLabel: linuxOS,
 						},
 						Tolerations: []corev1.Toleration{
 							{
@@ -3773,9 +3815,9 @@ func TestDesiredExternalDNSDeployment(t *testing.T) {
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{allCapabilities},
 									},
-									Privileged:               pointer.Bool(false),
-									RunAsNonRoot:             pointer.Bool(true),
-									AllowPrivilegeEscalation: pointer.Bool(false),
+									Privileged:               ptr.To[bool](false),
+									RunAsNonRoot:             ptr.To[bool](true),
+									AllowPrivilegeEscalation: ptr.To[bool](false),
 									SeccompProfile: &corev1.SeccompProfile{
 										Type: corev1.SeccompProfileTypeRuntimeDefault,
 									},
@@ -3921,9 +3963,9 @@ func TestExternalDNSDeploymentChanged(t *testing.T) {
 						Capabilities: &corev1.Capabilities{
 							Drop: []corev1.Capability{allCapabilities},
 						},
-						Privileged:               pointer.Bool(false),
-						RunAsNonRoot:             pointer.Bool(true),
-						AllowPrivilegeEscalation: pointer.Bool(false),
+						Privileged:               ptr.To[bool](false),
+						RunAsNonRoot:             ptr.To[bool](true),
+						AllowPrivilegeEscalation: ptr.To[bool](false),
 						SeccompProfile: &corev1.SeccompProfile{
 							Type: corev1.SeccompProfileTypeRuntimeDefault,
 						},
@@ -3935,9 +3977,9 @@ func TestExternalDNSDeploymentChanged(t *testing.T) {
 					Capabilities: &corev1.Capabilities{
 						Drop: []corev1.Capability{allCapabilities},
 					},
-					Privileged:               pointer.Bool(false),
-					RunAsNonRoot:             pointer.Bool(true),
-					AllowPrivilegeEscalation: pointer.Bool(false),
+					Privileged:               ptr.To[bool](false),
+					RunAsNonRoot:             ptr.To[bool](true),
+					AllowPrivilegeEscalation: ptr.To[bool](false),
 					SeccompProfile: &corev1.SeccompProfile{
 						Type: corev1.SeccompProfileTypeRuntimeDefault,
 					},
@@ -3951,9 +3993,9 @@ func TestExternalDNSDeploymentChanged(t *testing.T) {
 					Capabilities: &corev1.Capabilities{
 						Drop: []corev1.Capability{allCapabilities},
 					},
-					Privileged:               pointer.Bool(false),
-					RunAsNonRoot:             pointer.Bool(true),
-					AllowPrivilegeEscalation: pointer.Bool(true),
+					Privileged:               ptr.To[bool](false),
+					RunAsNonRoot:             ptr.To[bool](true),
+					AllowPrivilegeEscalation: ptr.To[bool](true),
 					SeccompProfile: &corev1.SeccompProfile{
 						Type: corev1.SeccompProfileTypeRuntimeDefault,
 					},
@@ -3964,9 +4006,9 @@ func TestExternalDNSDeploymentChanged(t *testing.T) {
 						Capabilities: &corev1.Capabilities{
 							Drop: []corev1.Capability{allCapabilities},
 						},
-						Privileged:               pointer.Bool(false),
-						RunAsNonRoot:             pointer.Bool(true),
-						AllowPrivilegeEscalation: pointer.Bool(false),
+						Privileged:               ptr.To[bool](false),
+						RunAsNonRoot:             ptr.To[bool](true),
+						AllowPrivilegeEscalation: ptr.To[bool](false),
 						SeccompProfile: &corev1.SeccompProfile{
 							Type: corev1.SeccompProfileTypeRuntimeDefault,
 						},
@@ -3978,9 +4020,9 @@ func TestExternalDNSDeploymentChanged(t *testing.T) {
 					Capabilities: &corev1.Capabilities{
 						Drop: []corev1.Capability{allCapabilities},
 					},
-					Privileged:               pointer.Bool(false),
-					RunAsNonRoot:             pointer.Bool(true),
-					AllowPrivilegeEscalation: pointer.Bool(false),
+					Privileged:               ptr.To[bool](false),
+					RunAsNonRoot:             ptr.To[bool](true),
+					AllowPrivilegeEscalation: ptr.To[bool](false),
 					SeccompProfile: &corev1.SeccompProfile{
 						Type: corev1.SeccompProfileTypeRuntimeDefault,
 					},
@@ -3994,9 +4036,9 @@ func TestExternalDNSDeploymentChanged(t *testing.T) {
 					Capabilities: &corev1.Capabilities{
 						Drop: []corev1.Capability{allCapabilities},
 					},
-					Privileged:               pointer.Bool(false),
-					RunAsNonRoot:             pointer.Bool(true),
-					AllowPrivilegeEscalation: pointer.Bool(false),
+					Privileged:               ptr.To[bool](false),
+					RunAsNonRoot:             ptr.To[bool](true),
+					AllowPrivilegeEscalation: ptr.To[bool](false),
 					SeccompProfile: &corev1.SeccompProfile{
 						Type: corev1.SeccompProfileTypeRuntimeDefault,
 					},
@@ -4137,8 +4179,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -4157,6 +4198,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  awsCredentialsFileKey,
 													Path: awsCredentialsFileName,
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -4190,14 +4247,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: awsCredentialsMountPath,
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -4246,8 +4308,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 							Spec: corev1.PodSpec{
 								ServiceAccountName: test.OperandName,
 								NodeSelector: map[string]string{
-									osLabel:             linuxOS,
-									masterNodeRoleLabel: "",
+									osLabel: linuxOS,
 								},
 								Tolerations: []corev1.Toleration{
 									{
@@ -4266,6 +4327,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 													{
 														Key:  awsCredentialsFileKey,
 														Path: awsCredentialsFileName,
+													},
+												},
+											},
+										},
+									},
+									{
+										Name: "bound-sa-token",
+										VolumeSource: corev1.VolumeSource{
+											Projected: &corev1.ProjectedVolumeSource{
+												Sources: []corev1.VolumeProjection{
+													{
+														ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+															Audience:          "openshift",
+															ExpirationSeconds: ptr.To[int64](3600),
+															Path:              "token",
+														},
 													},
 												},
 											},
@@ -4299,14 +4376,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												MountPath: awsCredentialsMountPath,
 												ReadOnly:  true,
 											},
+											{
+												Name:      "bound-sa-token",
+												MountPath: "/var/run/secrets/openshift/serviceaccount",
+												ReadOnly:  true,
+											},
 										},
 										SecurityContext: &corev1.SecurityContext{
 											Capabilities: &corev1.Capabilities{
 												Drop: []corev1.Capability{allCapabilities},
 											},
-											Privileged:               pointer.Bool(false),
-											RunAsNonRoot:             pointer.Bool(true),
-											AllowPrivilegeEscalation: pointer.Bool(false),
+											Privileged:               ptr.To[bool](false),
+											RunAsNonRoot:             ptr.To[bool](true),
+											AllowPrivilegeEscalation: ptr.To[bool](false),
 											SeccompProfile: &corev1.SeccompProfile{
 												Type: corev1.SeccompProfileTypeRuntimeDefault,
 											},
@@ -4356,8 +4438,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -4376,6 +4457,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  awsCredentialsFileKey,
 													Path: awsCredentialsFileName,
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -4409,14 +4506,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: awsCredentialsMountPath,
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -4429,7 +4531,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 			},
 		},
 		{
-			name:   "Exist as expected with one Router Names added as flag",
+			name:   "Exist as expected with one router name added as flag",
 			extDNS: *testAWSExternalDNSHostnameAllow(operatorv1beta1.SourceTypeRoute, "default"),
 			existingObjects: []runtime.Object{
 				&appsv1.Deployment{
@@ -4465,8 +4567,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 							Spec: corev1.PodSpec{
 								ServiceAccountName: test.OperandName,
 								NodeSelector: map[string]string{
-									osLabel:             linuxOS,
-									masterNodeRoleLabel: "",
+									osLabel: linuxOS,
 								},
 								Tolerations: []corev1.Toleration{
 									{
@@ -4485,6 +4586,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 													{
 														Key:  awsCredentialsFileKey,
 														Path: awsCredentialsFileName,
+													},
+												},
+											},
+										},
+									},
+									{
+										Name: "bound-sa-token",
+										VolumeSource: corev1.VolumeSource{
+											Projected: &corev1.ProjectedVolumeSource{
+												Sources: []corev1.VolumeProjection{
+													{
+														ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+															Audience:          "openshift",
+															ExpirationSeconds: ptr.To[int64](3600),
+															Path:              "token",
+														},
 													},
 												},
 											},
@@ -4517,14 +4634,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												MountPath: awsCredentialsMountPath,
 												ReadOnly:  true,
 											},
+											{
+												Name:      "bound-sa-token",
+												MountPath: "/var/run/secrets/openshift/serviceaccount",
+												ReadOnly:  true,
+											},
 										},
 										SecurityContext: &corev1.SecurityContext{
 											Capabilities: &corev1.Capabilities{
 												Drop: []corev1.Capability{allCapabilities},
 											},
-											Privileged:               pointer.Bool(false),
-											RunAsNonRoot:             pointer.Bool(true),
-											AllowPrivilegeEscalation: pointer.Bool(false),
+											Privileged:               ptr.To[bool](false),
+											RunAsNonRoot:             ptr.To[bool](true),
+											AllowPrivilegeEscalation: ptr.To[bool](false),
 											SeccompProfile: &corev1.SeccompProfile{
 												Type: corev1.SeccompProfileTypeRuntimeDefault,
 											},
@@ -4575,8 +4697,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -4595,6 +4716,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  awsCredentialsFileKey,
 													Path: awsCredentialsFileName,
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -4629,14 +4766,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: awsCredentialsMountPath,
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -4685,8 +4827,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 							Spec: corev1.PodSpec{
 								ServiceAccountName: test.OperandName,
 								NodeSelector: map[string]string{
-									osLabel:             linuxOS,
-									masterNodeRoleLabel: "",
+									osLabel: linuxOS,
 								},
 								Tolerations: []corev1.Toleration{
 									{
@@ -4744,8 +4885,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -4764,6 +4904,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  awsCredentialsFileKey,
 													Path: awsCredentialsFileName,
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -4797,14 +4953,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: awsCredentialsMountPath,
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -4862,8 +5023,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -4898,6 +5058,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  "credentials",
 													Path: "aws-credentials",
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -4940,14 +5116,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: "/etc/kubernetes",
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -5001,8 +5182,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -5021,6 +5201,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  awsCredentialsFileKey,
 													Path: awsCredentialsFileName,
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -5055,14 +5251,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: awsCredentialsMountPath,
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -5111,8 +5312,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 							Spec: corev1.PodSpec{
 								ServiceAccountName: test.OperandName,
 								NodeSelector: map[string]string{
-									osLabel:             linuxOS,
-									masterNodeRoleLabel: "",
+									osLabel: linuxOS,
 								},
 								Tolerations: []corev1.Toleration{
 									{
@@ -5131,6 +5331,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 													{
 														Key:  awsCredentialsFileKey,
 														Path: awsCredentialsFileName,
+													},
+												},
+											},
+										},
+									},
+									{
+										Name: "bound-sa-token",
+										VolumeSource: corev1.VolumeSource{
+											Projected: &corev1.ProjectedVolumeSource{
+												Sources: []corev1.VolumeProjection{
+													{
+														ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+															Audience:          "openshift",
+															ExpirationSeconds: ptr.To[int64](3600),
+															Path:              "token",
+														},
 													},
 												},
 											},
@@ -5163,6 +5379,11 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											{
 												Name:      awsCredentialsVolumeName,
 												MountPath: awsCredentialsMountPath,
+												ReadOnly:  true,
+											},
+											{
+												Name:      "bound-sa-token",
+												MountPath: "/var/run/secrets/openshift/serviceaccount",
 												ReadOnly:  true,
 											},
 										},
@@ -5211,8 +5432,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -5231,6 +5451,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  awsCredentialsFileKey,
 													Path: awsCredentialsFileName,
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -5265,14 +5501,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: awsCredentialsMountPath,
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -5320,8 +5561,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 							Spec: corev1.PodSpec{
 								ServiceAccountName: test.OperandName,
 								NodeSelector: map[string]string{
-									osLabel:             linuxOS,
-									masterNodeRoleLabel: "",
+									osLabel: linuxOS,
 								},
 								Tolerations: []corev1.Toleration{
 									{
@@ -5383,8 +5623,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -5403,6 +5642,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  awsCredentialsFileKey,
 													Path: awsCredentialsFileName,
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -5437,14 +5692,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: awsCredentialsMountPath,
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -5494,8 +5754,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 							Spec: corev1.PodSpec{
 								ServiceAccountName: test.OperandName,
 								NodeSelector: map[string]string{
-									osLabel:             linuxOS,
-									masterNodeRoleLabel: "",
+									osLabel: linuxOS,
 								},
 								Tolerations: []corev1.Toleration{
 									{
@@ -5617,8 +5876,7 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 						Spec: corev1.PodSpec{
 							ServiceAccountName: test.OperandName,
 							NodeSelector: map[string]string{
-								osLabel:             linuxOS,
-								masterNodeRoleLabel: "",
+								osLabel: linuxOS,
 							},
 							Tolerations: []corev1.Toleration{
 								{
@@ -5651,6 +5909,22 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 												{
 													Key:  "key",
 													Path: "path",
+												},
+											},
+										},
+									},
+								},
+								{
+									Name: "bound-sa-token",
+									VolumeSource: corev1.VolumeSource{
+										Projected: &corev1.ProjectedVolumeSource{
+											Sources: []corev1.VolumeProjection{
+												{
+													ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+														Audience:          "openshift",
+														ExpirationSeconds: ptr.To[int64](3600),
+														Path:              "token",
+													},
 												},
 											},
 										},
@@ -5690,14 +5964,19 @@ func TestEnsureExternalDNSDeployment(t *testing.T) {
 											MountPath: "somepath",
 											ReadOnly:  true,
 										},
+										{
+											Name:      "bound-sa-token",
+											MountPath: "/var/run/secrets/openshift/serviceaccount",
+											ReadOnly:  true,
+										},
 									},
 									SecurityContext: &corev1.SecurityContext{
 										Capabilities: &corev1.Capabilities{
 											Drop: []corev1.Capability{allCapabilities},
 										},
-										Privileged:               pointer.Bool(false),
-										RunAsNonRoot:             pointer.Bool(true),
-										AllowPrivilegeEscalation: pointer.Bool(false),
+										Privileged:               ptr.To[bool](false),
+										RunAsNonRoot:             ptr.To[bool](true),
+										AllowPrivilegeEscalation: ptr.To[bool](false),
 										SeccompProfile: &corev1.SeccompProfile{
 											Type: corev1.SeccompProfileTypeRuntimeDefault,
 										},
@@ -5805,109 +6084,109 @@ func TestSecurityContextChanged(t *testing.T) {
 		{
 			name:      "current RunAsNonRoot is nil",
 			currentSC: &corev1.SecurityContext{},
-			desiredSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(false)},
+			desiredSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			// should be ignored to handle defaulting
 			name:      "desired RunAsNonRoot is nil",
-			currentSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](false)},
 			desiredSC: &corev1.SecurityContext{},
 			updatedSC: &corev1.SecurityContext{},
 			changed:   false,
 		},
 		{
 			name:      "RunAsNonRoot changes true->false",
-			currentSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			name:      "RunAsNonRoot changes false->true",
-			currentSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			name:      "RunAsNonRoot changes is same",
-			currentSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(true)},
-			updatedSC: &corev1.SecurityContext{RunAsNonRoot: pointer.Bool(true)},
+			currentSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](true)},
+			updatedSC: &corev1.SecurityContext{RunAsNonRoot: ptr.To[bool](true)},
 			changed:   false,
 		},
 		{
 			name:      "current Privileged is nil",
 			currentSC: &corev1.SecurityContext{},
-			desiredSC: &corev1.SecurityContext{Privileged: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{Privileged: pointer.Bool(false)},
+			desiredSC: &corev1.SecurityContext{Privileged: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{Privileged: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			// should be ignored to handle defaulting
 			name:      "desired Privileged is nil",
 			desiredSC: &corev1.SecurityContext{},
-			currentSC: &corev1.SecurityContext{Privileged: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{Privileged: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{Privileged: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{Privileged: ptr.To[bool](false)},
 			changed:   false,
 		},
 		{
 			name:      "Privileged changes true->false",
-			currentSC: &corev1.SecurityContext{Privileged: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{Privileged: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{Privileged: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{Privileged: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{Privileged: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{Privileged: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			name:      "Privileged changes false->true",
-			currentSC: &corev1.SecurityContext{Privileged: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{Privileged: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{Privileged: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{Privileged: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{Privileged: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{Privileged: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			name:      "Privileged is same",
-			currentSC: &corev1.SecurityContext{Privileged: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{Privileged: pointer.Bool(true)},
-			updatedSC: &corev1.SecurityContext{Privileged: pointer.Bool(true)},
+			currentSC: &corev1.SecurityContext{Privileged: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{Privileged: ptr.To[bool](true)},
+			updatedSC: &corev1.SecurityContext{Privileged: ptr.To[bool](true)},
 			changed:   false,
 		},
 		{
 			name:      "current AllowPrivilegeEscalation is nil",
 			currentSC: &corev1.SecurityContext{},
-			desiredSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(false)},
+			desiredSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			// should be ignored to handle defaulting
 			name:      "desired AllowPrivilegeEscalation is nil",
 			desiredSC: &corev1.SecurityContext{},
-			currentSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](false)},
 			changed:   false,
 		},
 		{
 			name:      "AllowPrivilegeEscalation changes true->false",
-			currentSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			name:      "AllowPrivilegeEscalation changes false->true",
-			currentSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(false)},
-			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(false)},
+			currentSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](false)},
+			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](false)},
 			changed:   true,
 		},
 		{
 			name:      "AllowPrivilegeEscalation is same",
-			currentSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(true)},
-			desiredSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(true)},
-			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: pointer.Bool(true)},
+			currentSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](true)},
+			desiredSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](true)},
+			updatedSC: &corev1.SecurityContext{AllowPrivilegeEscalation: ptr.To[bool](true)},
 			changed:   false,
 		},
 		{
@@ -6023,14 +6302,14 @@ func TestSecurityContextChanged(t *testing.T) {
 			desiredSC: &corev1.SecurityContext{SeccompProfile: &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault}},
 			updatedSC: &corev1.SecurityContext{
 				SeccompProfile: &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
-				RunAsUser:      pointer.Int64(1007),
+				RunAsUser:      ptr.To[int64](1007),
 			},
 			changed: true,
 		},
 		{
 			name:      "Don't update security context if diff in other fields",
 			currentSC: &corev1.SecurityContext{SeccompProfile: &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault}},
-			desiredSC: &corev1.SecurityContext{SeccompProfile: &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault}, RunAsUser: pointer.Int64(1007)},
+			desiredSC: &corev1.SecurityContext{SeccompProfile: &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault}, RunAsUser: ptr.To[int64](1007)},
 			updatedSC: &corev1.SecurityContext{
 				SeccompProfile: &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
 			},
@@ -6448,7 +6727,7 @@ func testInfobloxExternalDNS(source operatorv1beta1.ExternalDNSSourceType) *oper
 	extdns.Spec.Provider.Infoblox = &operatorv1beta1.ExternalDNSInfobloxProviderOptions{
 		GridHost:    "gridhost.example.com",
 		WAPIPort:    443,
-		WAPIVersion: "2.3.1",
+		WAPIVersion: "2.12.2",
 	}
 	return extdns
 }
@@ -6459,7 +6738,7 @@ func testAWSExternalDNSDomainFilter(zones []string, source operatorv1beta1.Exter
 		{
 			ExternalDNSDomainUnion: operatorv1beta1.ExternalDNSDomainUnion{
 				MatchType: operatorv1beta1.DomainMatchTypeExact,
-				Name:      pointer.String("abc.com"),
+				Name:      ptr.To[string]("abc.com"),
 			},
 			FilterType: operatorv1beta1.FilterTypeInclude,
 		},

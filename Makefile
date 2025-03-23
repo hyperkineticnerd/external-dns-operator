@@ -3,7 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the BUNDLE_VERSION as arg of the bundle target (e.g make bundle BUNDLE_VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export BUNDLE_VERSION=0.0.2)
-BUNDLE_VERSION ?= 1.1.0
+BUNDLE_VERSION ?= 1.3.0
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
@@ -41,8 +41,8 @@ endif
 
 CONTROLLER_GEN := go run sigs.k8s.io/controller-tools/cmd/controller-gen
 SETUP_ENVTEST := go run sigs.k8s.io/controller-runtime/tools/setup-envtest
-KUSTOMIZE := go run sigs.k8s.io/kustomize/kustomize/v4
-K8S_ENVTEST_VERSION := 1.21.4
+KUSTOMIZE := go run sigs.k8s.io/kustomize/kustomize/v5
+K8S_ENVTEST_VERSION := 1.30.0
 
 PACKAGE=github.com/openshift/external-dns-operator
 
@@ -60,9 +60,11 @@ CONTAINER_PUSH_ARGS ?= $(if $(filter ${CONTAINER_ENGINE}, docker), , --tls-verif
 
 BUNDLE_DIR := bundle
 BUNDLE_MANIFEST_DIR := $(BUNDLE_DIR)/manifests
-BUNDLE_IMG ?= olm-bundle:latest
-INDEX_IMG ?= olm-bundle-index:latest
-OPM_VERSION ?= v1.17.4
+BUNDLE_IMG ?= quay.io/external-dns-operator/external-dns-operator-bundle:latest
+CATALOG_DIR := catalog
+PACKAGE_DIR := $(CATALOG_DIR)/external-dns-operator
+CATALOG_IMG ?= quay.io/external-dns-operator/external-dns-operator-catalog:latest
+OPM_VERSION ?= v1.31.0
 
 GOLANGCI_LINT_BIN=$(BIN_DIR)/golangci-lint
 
@@ -73,6 +75,7 @@ SHORTCOMMIT ?= $(shell git rev-parse --short HEAD)
 GOBUILD_VERSION_ARGS = -ldflags "-X $(PACKAGE)/pkg/version.SHORTCOMMIT=$(SHORTCOMMIT) -X $(PACKAGE)/pkg/version.COMMIT=$(COMMIT)"
 
 E2E_TIMEOUT ?= 1h
+TEST_PKG ?= ./test/e2e
 
 all: build
 
@@ -109,7 +112,7 @@ vet: ## Run go vet against code.
 ENVTEST_ASSETS_DIR ?= $(shell pwd)/testbin
 test: manifests generate fmt vet ## Run tests.
 	mkdir -p "$(ENVTEST_ASSETS_DIR)"
-	KUBEBUILDER_ASSETS="$(shell $(SETUP_ENVTEST) use "$(K8S_ENVTEST_VERSION)" --print path --bin-dir "$(ENVTEST_ASSETS_DIR)")" go test ./... -race -covermode=atomic -coverprofile coverage.out
+	KUBEBUILDER_ASSETS="$(shell $(SETUP_ENVTEST) use "$(K8S_ENVTEST_VERSION)" --print path --bin-dir "$(ENVTEST_ASSETS_DIR)")" CGO_ENABLED=1 go test ./... -race -covermode=atomic -coverprofile coverage.out
 
 .PHONY: test-e2e
 test-e2e:
@@ -120,7 +123,11 @@ test-e2e:
 	-v \
 	-tags e2e \
 	-run "$(TEST)" \
-	./test/e2e
+	$(TEST_PKG)
+
+.PHONY: test-e2e-sharedvpc
+test-e2e-sharedvpc:
+	TEST_PKG=./test/e2e_sharedvpc make test-e2e
 
 verify: lint
 	hack/verify-gofmt.sh
@@ -170,25 +177,31 @@ undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/confi
 .PHONY: bundle
 bundle: $(OPERATOR_SDK_BIN) manifests
 	$(OPERATOR_SDK_BIN) generate kustomize manifests -q
-	cd config/manager && $(KUSTOMIZE) edit set image quay.io/openshift/origin-external-dns-operator=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image quay.io/openshift/origin-external-dns-operator=$(IMG)
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK_BIN) generate bundle -q --overwrite=false --version $(BUNDLE_VERSION) $(BUNDLE_METADATA_OPTS)
 	$(OPERATOR_SDK_BIN) bundle validate $(BUNDLE_DIR)
 
 .PHONY: bundle-image-build
 bundle-image-build: bundle
-	$(CONTAINER_ENGINE) build -t ${BUNDLE_IMG} -f Dockerfile.bundle .
+	$(CONTAINER_ENGINE) build -t $(BUNDLE_IMG) -f Dockerfile.bundle .
 
 .PHONY: bundle-image-push
 bundle-image-push:
-	$(CONTAINER_ENGINE) push ${BUNDLE_IMG}
+	$(CONTAINER_ENGINE) push $(BUNDLE_IMG)
 
-.PHONY: index-image-build
-index-image-build: opm
-	$(OPM) index add -c $(CONTAINER_ENGINE) --bundles ${BUNDLE_IMG} --tag ${INDEX_IMG}
+.PHONY: catalog
+catalog: opm
+	# TODO: make opm use the bundle image built locally
+	$(OPM) render $(BUNDLE_IMG) -o yaml > $(PACKAGE_DIR)/bundle.yaml
+	$(OPM) validate $(CATALOG_DIR)
 
-.PHONY: index-image-push
-index-image-push:
-	$(CONTAINER_ENGINE) push ${INDEX_IMG}
+.PHONY: catalog-image-build
+catalog-image-build: catalog
+	$(CONTAINER_ENGINE) build -t $(CATALOG_IMG) -f Dockerfile.catalog .
+
+.PHONY: catalog-image-push
+catalog-image-push:
+	$(CONTAINER_ENGINE) push $(CATALOG_IMG)
 
 OPM=$(BIN_DIR)/opm
 opm: ## Download opm locally if necessary.
@@ -206,7 +219,7 @@ endef
 .PHONY: lint
 ## Checks the code with golangci-lint
 lint: $(GOLANGCI_LINT_BIN)
-	$(GOLANGCI_LINT_BIN) run -c .golangci.yaml --deadline=30m
+	$(GOLANGCI_LINT_BIN) run -c .golangci.yaml
 
 $(GOLANGCI_LINT_BIN):
 	mkdir -p $(BIN_DIR)

@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.19 as builder
+FROM golang:1.22 as builder
 
 WORKDIR /opt/app-root/src
 COPY . .
@@ -8,7 +8,7 @@ COPY . .
 RUN make build-operator
 
 # Use minimal base image to package the manager binary
-FROM registry.access.redhat.com/ubi8/ubi-micro:latest
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest
 WORKDIR /
 COPY --from=builder /opt/app-root/src/bin/external-dns-operator .
 
